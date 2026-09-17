@@ -190,7 +190,7 @@ export default function DashboardPage() {
       title: "Kode Teruji",
       desc: "Berhasil menyelesaikan soal coding Auto-Judge.",
       icon: <Code2 className="w-5 h-5 text-[#1a3300]" />,
-      unlocked: progress.submissions.some((s) => s.type === "coding" && s.status === "accepted"),
+      unlocked: (progress.submissions || []).some((s) => s.type === "coding" && s.status === "accepted"),
     },
     {
       id: "level_two",
@@ -507,7 +507,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="pt-4 mt-4 border-t border-[#f1f1f1] text-xs font-mono text-[#1a3300]/70">
-            {progress.submissions.length} submission tersimpan
+            {(progress.submissions || []).length} submission tersimpan
           </div>
         </div>
       </section>
@@ -656,11 +656,11 @@ export default function DashboardPage() {
             </p>
           </div>
           <span className="text-xs sm:text-sm font-mono text-[#1a3300]/70 font-semibold">
-            {progress.submissions.length} Aktivitas Tercatat
+            {(progress.submissions || []).length} Aktivitas Tercatat
           </span>
         </div>
 
-        {progress.submissions.length === 0 ? (
+        {(progress.submissions || []).length === 0 ? (
           <div className="p-8 text-center bg-white border-2 border-[#1a3300] rounded-[14px] shadow-2xs">
             <p className="text-sm sm:text-base text-[#1a3300]/80 mb-4">
               Belum ada riwayat submission. Mulai susun baris kode atau jalankan kode pertama kamu di modul Java!
@@ -688,7 +688,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#f1f1f1]">
-                  {progress.submissions.map((sub) => {
+                  {(progress.submissions || []).map((sub) => {
                     const isAccepted = sub.status === "accepted";
                     const isDragDrop = sub.type === "drag_drop";
                     const meta = getExerciseMetadata(sub.exerciseId);

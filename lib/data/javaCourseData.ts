@@ -551,31 +551,235 @@ System.out.println("Nama: " + {slot_4} + " | Umur: " + usia + " | IPK: " + ipk);
           id: "les-op-1",
           moduleSlug: "operator",
           slug: "operator-aritmatika-dan-logika",
-          title: "Operator Logika & Perbandingan",
-          description: "Pelajari evaluasi kondisi menggunakan boolean operator AND (&&), OR (||), dan negasi (!).",
+          title: "Operator Java: Aritmatika, Perbandingan, & Logika",
+          description: "Panduan lengkap fungsi dan contoh penggunaan operator aritmatika, unary, penugasan, perbandingan, logika short-circuit, dan operator ternary dalam Java.",
           order: 1,
           keyConcepts: [
-            "Operator perbandingan: ==, !=, >, <, >=, <=",
-            "Operator logika short-circuit: && (keduanya harus true), || (salah satu cukup true)",
-            "Ternary operator: condition ? valueIfTrue : valueIfFalse",
+            "Operator aritmatika (+, -, *, /, %) dan operasi modulo serta jebakan integer division",
+            "Operator unary & increment/decrement (++ dan --): perbedaan pre-increment vs post-increment",
+            "Operator penugasan gabungan (compound assignment): +=, -=, *=, /=, %=",
+            "Operator perbandingan (==, !=, >, <, >=, <=) menghasilkan boolean; gunakan .equals() untuk objek String",
+            "Operator logika boolean: && (AND), || (OR), dan ! (NOT) beserta mekanisme evaluasi short-circuit",
+            "Ternary operator (kondisi ? nilaiJikaTrue : nilaiJikaFalse) dan urutan prioritas operator (precedence)",
           ],
-          contentMarkdown: `Operator memungkinkan kita memanipulasi nilai variabel dan membangun ekspresi logika.
-Short-circuit evaluation pada Java menjamin jika sisi kiri dari \`&&\` bernilai \`false\`, sisi kanan tidak akan dievaluasi.`,
+          contentMarkdown: `Operator adalah simbol-simbol khusus di Java yang digunakan untuk memanipulasi nilai variabel, melakukan kalkulasi matematika, serta mengambil keputusan logika. Nilai yang dioperasikan disebut **operand**, sedangkan gabungan antara operand dan operator membentuk sebuah **ekspresi**.
+
+Java menyediakan beberapa kategori operator utama yang saling melengkapi dalam membangun program.
+
+---
+
+### 1. Operator Aritmatika (Arithmetic Operators)
+
+Operator aritmatika digunakan untuk melakukan operasi dasar matematika pada tipe data numerik (\`int\`, \`double\`, \`float\`, dsb.):
+
+| Operator | Nama Operasi | Fungsi | Contoh Ekspresi | Hasil |
+|---|---|---|---|---|
+| \`+\` | Penjumlahan | Menjumlahkan dua angka atau menggabungkan teks | \`15 + 10\` | \`25\` |
+| \`-\` | Pengurangan | Mengurangkan angka operan kanan dari kiri | \`15 - 10\` | \`5\` |
+| \`*\` | Perkalian | Mengalikan dua bilangan | \`6 * 7\` | \`42\` |
+| \`/\` | Pembagian | Membagi operan kiri dengan operan kanan | \`20 / 4\` | \`5\` |
+| \`%\` | Modulo (Sisa Bagi) | Mengambil sisa pembagian bilangan bulat | \`17 % 5\` | \`2\` (karena 17 = 5×3 + 2) |
+
+#### Contoh Penggunaan Aritmatika:
+\`\`\`java
+int hargaBarang = 50000;
+int jumlahBeli = 3;
+int total = hargaBarang * jumlahBeli; // 150000
+
+int sisaUang = 200000 - total;        // 50000
+int perOrang = total / 2;             // 75000
+\`\`\`
+
+#### ⚠️ Perangkap Kritis: Pembagian Bilangan Bulat (Integer Division)
+Di Java, jika kedua operan bertipe integer (\`int\`), hasil pembagian akan **dipotong (truncated)** ke bawah menjadi bilangan bulat, tanpa koma desimal:
+\`\`\`java
+int hasilSalah = 5 / 2;       // Hasilnya 2, BUKAN 2.5!
+double hasilBenar = 5.0 / 2;  // Hasilnya 2.5 (karena salah satu angka desimal)
+double konversi = (double) 5 / 2; // Hasilnya 2.5
+\`\`\`
+
+#### 💡 Fungsi Operator Modulo (\`%\`) dalam Pemrograman Nyata
+Modulo sangat sering digunakan untuk:
+1. **Mengecek bilangan ganjil atau genap**: \`angka % 2 == 0\` (genap) atau \`angka % 2 != 0\` (ganjil).
+2. **Mengecek kelipatan**: \`tahun % 4 == 0\` (cek tahun kabisat).
+3. **Membatasi rentang nilai / rotasi siklus**: \`jam = (jamSekarang + 5) % 24\`.
+
+---
+
+### 2. Operator Unary & Increment / Decrement
+
+Operator unary hanya membutuhkan **satu operan** untuk bekerja:
+
+| Operator | Nama | Fungsi | Contoh |
+|---|---|---|---|
+| \`++\` | Increment | Menambah nilai variabel sebesar 1 | \`counter++\` atau \`++counter\` |
+| \`--\` | Decrement | Mengurangi nilai variabel sebesar 1 | \`stok--\` atau \`--stok\` |
+| \`+\` | Unary Plus | Menunjukkan nilai positif (default) | \`+10\` |
+| \`-\` | Unary Minus | Membalikkan tanda bilangan (menjadi negatif) | \`-angka\` |
+| \`!\` | Logical NOT | Membalikkan nilai boolean (\`true\` jadi \`false\`) | \`!isSelesai\` |
+
+#### Perbedaan Pre-Increment (\`++x\`) vs Post-Increment (\`x++\`)
+- **Post-increment (\`x++\`)**: Nilai saat ini **digunakan terlebih dahulu** dalam ekspresi, barulah nilainya ditambah 1 setelah baris tersebut.
+- **Pre-increment (\`++x\`)**: Nilai variabel **ditambah 1 terlebih dahulu**, barulah nilai baru tersebut digunakan dalam ekspresi.
+
+\`\`\`java
+int a = 5;
+int b = a++; // b menerima 5, lalu a berubah jadi 6
+System.out.println("a=" + a + ", b=" + b); // a=6, b=5
+
+int x = 5;
+int y = ++x; // x ditambah jadi 6 dulu, lalu y menerima 6
+System.out.println("x=" + x + ", y=" + y); // x=6, y=6
+\`\`\`
+
+---
+
+### 3. Operator Penugasan Gabungan (Compound Assignment)
+
+Operator penugasan gabungan mempersingkat penulisan operasi aritmatika yang memperbarui variabel itu sendiri:
+
+| Operator | Sintaks Singkat | Bentuk Panjang yang Ekuivalen | Contoh Penggunaan |
+|---|---|---|---|
+| \`+=\` | \`a += b\` | \`a = a + b\` | \`skor += 10;\` (tambah poin 10) |
+| \`-=\` | \`a -= b\` | \`a = a - b\` | \`saldo -= 25000;\` (tarik saldo) |
+| \`*=\` | \`a *= b\` | \`a = a * b\` | \`gaji *= 2;\` (gaji berlipat ganda) |
+| \`/=\` | \`a /= b\` | \`a = a / b\` | \`stok /= 2;\` (bagi stok separuh) |
+| \`%=\` | \`a %= b\` | \`a = a % b\` | \`detik %= 60;\` (sisa detik) |
+
+---
+
+### 4. Operator Relasional / Perbandingan (Comparison Operators)
+
+Operator ini membandingkan dua nilai dan **selalu menghasilkan nilai boolean** (\`true\` atau \`false\`):
+
+| Operator | Arti | Contoh Ekspresi | Hasil (\`int x = 10, y = 20\`) |
+|---|---|---|---|
+| \`==\` | Sama dengan | \`x == y\` | \`false\` |
+| \`!=\` | Tidak sama dengan | \`x != y\` | \`true\` |
+| \`>\` | Lebih besar dari | \`x > y\` | \`false\` |
+| \`<\` | Lebih kecil dari | \`x < y\` | \`true\` |
+| \`>=\` | Lebih besar atau sama dengan | \`x >= 10\` | \`true\` |
+| \`<=\` | Lebih kecil atau sama dengan | \`y <= 20\` | \`true\` |
+
+#### ⚠️ Catatan Penting: Membandingkan Teks (\`String\`)
+Jangan gunakan operator \`==\` untuk membandingkan isi teks \`String\`. Di Java, operator \`==\` pada objek hanya membandingkan alamat memori (*reference*), bukan isinya!
+\`\`\`java
+String nama1 = "Budi";
+String nama2 = new String("Budi");
+
+System.out.println(nama1 == nama2);      // JANGAN! Bisa menghasilkan false
+System.out.println(nama1.equals(nama2)); // BENAR! Selalu gunakan .equals() untuk String
+\`\`\`
+
+---
+
+### 5. Operator Logika Boolean (Logical Operators)
+
+Operator logika digunakan untuk menggabungkan beberapa kondisi boolean:
+
+| Operator | Nama | Karakteristik & Aturan |
+|---|---|---|
+| \`&&\` | Logical AND | Bernilai \`true\` **hanya jika kedua kondisi** bernilai \`true\`. Jika salah satu \`false\`, hasilnya langsung \`false\`. |
+| \`\|\|\` | Logical OR | Bernilai \`true\` jika **salah satu atau kedua kondisi** bernilai \`true\`. Hanya \`false\` jika keduanya \`false\`. |
+| \`!\` | Logical NOT | Membalik kebenaran: \`!true\` bernilai \`false\`, dan \`!false\` bernilai \`true\`. |
+
+#### Tabel Kebenaran (Truth Table) Ringkas
+
+| A | B | \`A && B\` (AND) | \`A \|\| B\` (OR) | \`!A\` (NOT) |
+|---|---|---|---|---|
+| \`true\` | \`true\` | \`true\` | \`true\` | \`false\` |
+| \`true\` | \`false\` | \`false\` | \`true\` | \`false\` |
+| \`false\` | \`true\` | \`false\` | \`true\` | \`true\` |
+| \`false\` | \`false\` | \`false\` | \`false\` | \`true\` |
+
+#### ⚡ Evaluasi Jalur Singkat (Short-Circuit Evaluation)
+Java menerapkan mekanisme cerdas pada operator \`&&\` dan \`||\`:
+1. Pada \`A && B\`: Jika \`A\` bernilai \`false\`, Java **tidak akan pernah mengevaluasi \`B\`**, karena hasilnya sudah pasti \`false\`.
+2. Pada \`A || B\`: Jika \`A\` bernilai \`true\`, Java **tidak akan mengevaluasi \`B\`**, karena hasilnya sudah pasti \`true\`.
+
+**Manfaat Nyata:** Melindungi program dari crash / \`NullPointerException\`:
+\`\`\`java
+String pesan = null;
+// Aman: karena pesan == null menghasilkan false pada sisi kiri, sisi kanan pesan.length() tidak dijalankan
+if (pesan != null && pesan.length() > 0) {
+    System.out.println(pesan);
+}
+\`\`\`
+
+---
+
+### 6. Operator Ternary (Ternary Operator \`? :\`)
+
+Operator ternary adalah satu-satunya operator di Java yang membutuhkan **tiga operan**. Operator ini merupakan bentuk ringkas dari percabangan \`if-else\` untuk mengembalikan nilai:
+
+\`\`\`
+variabel = (kondisi) ? nilaiJikaTrue : nilaiJikaFalse;
+\`\`\`
+
+#### Contoh Penggunaan:
+\`\`\`java
+int nilai = 80;
+// Jika nilai >= 75 bernilai true, hasil = "LULUS". Jika false, hasil = "REMIDI"
+String status = (nilai >= 75) ? "LULUS" : "REMIDI";
+
+int umur = 18;
+boolean bolehMemilih = (umur >= 17) ? true : false;
+
+int x = 15;
+String jenisBilangan = (x % 2 == 0) ? "Genap" : "Ganjil"; // "Ganjil"
+\`\`\`
+
+---
+
+### 7. Urutan Prioritas Operator (Operator Precedence)
+
+Ketika beberapa operator bercampur dalam satu baris ekspresi, Java mengeksekusinya berdasarkan tabel prioritas:
+
+1. **Tanda Kurung \`()\`** (Prioritas Tertinggi)
+2. **Unary / Increment**: \`++\`, \`--\`, \`!\`, \`-\`
+3. **Multiplikasi**: \`*\`, \`/\`, \`%\`
+4. **Adisi**: \`+\`, \`-\`
+5. **Relasional**: \`>\`, \`<\`, \`>=\`, \`<=\`
+6. **Persamaan**: \`==\`, \`!=\`
+7. **Logical AND**: \`&&\`
+8. **Logical OR**: \`||\`
+9. **Ternary**: \`? :\`
+10. **Penugasan**: \`=\`, \`+=\`, \`-=\`, dst. (Prioritas Terendah)
+
+> **💡 Best Practice Profesional:** Jangan mengandalkan hafalan urutan prioritas yang membingungkan rekan satu tim. Selalu gunakan **tanda kurung \`()\`** untuk mengelompokkan operasi yang ingin kamu eksekusi lebih dulu secara eksplisit dan mudah dibaca!`,
           codeExamples: [
             {
-              title: "Evaluasi Kelulusan dengan Operator",
-              code: `public class CekKelulusan {
+              title: "Demonstrasi Lengkap Operator Java",
+              code: `public class DemoOperatorLengkap {
     public static void main(String[] args) {
-        double nilaiUjian = 85.0;
-        int kehadiranPersen = 80;
+        // 1. Operator Aritmatika & Modulo
+        int harga = 150000;
+        int kuponDiskon = 30000;
+        int totalBayar = harga - kuponDiskon; // 120000
+        int sisaBagi = 10 % 3;                // 1
 
-        boolean lulus = (nilaiUjian >= 75.0) && (kehadiranPersen >= 75);
-        String predikat = lulus ? "Lulus Bersyarat" : "Wajib Remidi";
+        // 2. Operator Penugasan Gabungan (Compound)
+        totalBayar += 5000; // ongkos kirim: totalBayar jadi 125000
 
-        System.out.println("Status: " + predikat);
+        // 3. Operator Increment & Decrement
+        int stok = 10;
+        stok--; // stok berkurang 1 jadi 9
+
+        // 4. Operator Relasional & Logika Boolean
+        double ipk = 3.85;
+        int absensiPersen = 90;
+        boolean lolosBeasiswa = (ipk >= 3.50) && (absensiPersen >= 80);
+
+        // 5. Operator Ternary
+        String status = lolosBeasiswa ? "DITERIMA BEASISWA" : "BELUM LOLOS";
+
+        // Tampilkan Hasil Eksekusi
+        System.out.println("Total Bayar: Rp" + totalBayar);
+        System.out.println("Sisa Stok: " + stok);
+        System.out.println("Status Beasiswa: " + status);
     }
 }`,
-              explanation: "Kombinasi operator perbandingan dan logika && menghasilkan boolean yang dievaluasi ternary operator.",
+              explanation: "Program ini menggabungkan kalkulasi aritmatika, compound assignment, evaluasi logika &&, dan ternary operator untuk mengambil keputusan.",
             },
           ],
           dragDropExercises: [

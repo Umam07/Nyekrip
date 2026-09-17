@@ -10,6 +10,14 @@ export function useRequireAuth() {
   const { isLoggedIn } = useProgress();
 
   useEffect(() => {
+    const hasAuthCookie =
+      typeof document !== "undefined" &&
+      (document.cookie.includes("nyekrip_auth") ||
+        document.cookie.includes("session_token") ||
+        document.cookie.includes("better-auth"));
+
+    if (hasAuthCookie) return;
+
     // If not logged in, redirect to login page with callback
     if (!isLoggedIn) {
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);

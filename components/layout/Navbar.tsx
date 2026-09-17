@@ -20,6 +20,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useLenis } from "lenis/react";
 import { useProgress } from "@/lib/context/ProgressContext";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 
@@ -91,9 +92,6 @@ function ProfileDropdown({
               <div className="text-xs font-bricolage font-bold text-[#1a3300] truncate">
                 {displayName}
               </div>
-              <div className="text-[10.5px] font-mono text-[#1a3300]/70 truncate">
-                {campus || "Teknik Informatika"}
-              </div>
             </div>
 
             <Link
@@ -116,7 +114,7 @@ function ProfileDropdown({
               className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-mono font-semibold text-[#cb5521] hover:bg-[#cb5521]/10 rounded-[8px] transition-colors cursor-pointer text-left"
             >
               <LogOut className="w-3.5 h-3.5 text-[#cb5521]" />
-              <span>Keluar (Logout)</span>
+              <span>Keluar</span>
             </button>
           </motion.div>
         )}
@@ -128,26 +126,29 @@ function ProfileDropdown({
 export function Navbar() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+
+
   const { progress, isLoggedIn, logoutUser } = useProgress();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const lenis = useLenis();
   const [activeSection, setActiveSection] = useState<string>("");
 
-  // Links untuk Navbar di Homepage (Navigasi Antar Section)
+  // Links untuk Navbar di Homepage (Navigasi Antar Section: Fitur -> Metode -> Demo -> Silabus)
   const homeSectionLinks = [
     { label: "Fitur", href: "#fitur", icon: Sparkles },
-    { label: "Demo Kuis", href: "#demo", icon: Play },
     { label: "Metode", href: "#metode", icon: Layers },
+    { label: "Demo Kuis", href: "#demo", icon: Play },
     { label: "Silabus", href: "#kurikulum", icon: Code2 },
-    { label: "Cerita", href: "#cerita", icon: BookOpen },
   ];
 
   // Links untuk Navbar Internal: jika sudah login, TIDAK ADA tautan ke "Beranda" (homepage)
   // Pengguna harus logout jika ingin kembali ke homepage
-  const appNavLinks = isLoggedIn
+  // Profil diakses melalui avatar dropdown menu di pojok kanan
+  const hasAppNav = isLoggedIn || pathname.startsWith("/dashboard");
+  const appNavLinks = hasAppNav
     ? [
+        { label: "Beranda", href: "/dashboard", icon: Terminal },
         { label: "Silabus", href: "/java", icon: Code2 },
-        { label: "Dashboard", href: "/dashboard", icon: Terminal },
-        { label: "Profil", href: "/dashboard/profile", icon: User },
       ]
     : [
         { label: "Silabus", href: "/java", icon: Code2 },
@@ -157,7 +158,7 @@ export function Navbar() {
   useEffect(() => {
     if (!isHomePage) return;
 
-    const sections = ["fitur", "demo", "metode", "kurikulum", "cerita"];
+    const sections = ["fitur", "metode", "demo", "kurikulum"];
     const handleScroll = () => {
       const scrollY = window.scrollY + 180;
       for (let i = sections.length - 1; i >= 0; i--) {
@@ -185,12 +186,21 @@ export function Navbar() {
       const id = targetId.replace("#", "");
       const el = document.getElementById(id);
       if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
+        if (lenis) {
+          lenis.scrollTo(el, { offset: -80, duration: 1.4 });
+        } else {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
         window.history.replaceState(null, "", `#${id}`);
       }
       setMobileMenuOpen(false);
     }
   };
+
+  // Sembunyikan navbar sepenuhnya ketika sedang berada di halaman login
+  if (pathname === "/login") {
+    return null;
+  }
 
   return (
     <>
@@ -365,7 +375,7 @@ export function Navbar() {
                         className="w-full flex items-center gap-2 px-3.5 py-2 text-sm font-mono font-bold text-[#cb5521] hover:bg-[#cb5521]/10 rounded-[10px] border border-[#cb5521]/30 cursor-pointer text-left"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Keluar Akun</span>
+                        <span>Keluar</span>
                       </button>
                     </>
                   ) : (
@@ -393,10 +403,6 @@ export function Navbar() {
               {/* Left: Brand Logo */}
               <div className="flex items-center gap-3">
                 <BrandLogo iconSize="sm" href={isLoggedIn ? "/dashboard" : "/"} />
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#d5f5c2]/60 border border-[#1a3300]/20 rounded-[6px] text-[11px] font-mono font-bold text-[#1a3300]">
-                  <Zap className="w-3 h-3 text-[#1a3300]" />
-                  <span>Mode Belajar</span>
-                </span>
               </div>
 
               {/* Center: Internal App Nav Links (no Beranda when logged in) */}
@@ -528,7 +534,7 @@ export function Navbar() {
                         className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono font-bold text-[#cb5521] hover:bg-[#cb5521]/10 rounded-[8px] border border-[#cb5521]/30 cursor-pointer text-left"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Keluar Akun</span>
+                        <span>Keluar</span>
                       </button>
                     </div>
                   )}

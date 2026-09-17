@@ -100,7 +100,13 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         localStorage.getItem(LEGACY_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        setProgress(parsed);
+        setProgress((prev) => ({
+          ...prev,
+          ...parsed,
+          completedLessonIds: parsed.completedLessonIds || [],
+          completedExerciseIds: parsed.completedExerciseIds || [],
+          submissions: parsed.submissions || [],
+        }));
       }
     } catch {
       // ignore

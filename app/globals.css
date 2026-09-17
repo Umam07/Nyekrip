@@ -29,6 +29,20 @@
   --color-sticky-note-mint: #d5f5c2;
   --color-sticky-note-blush: #f6d0ff;
   --color-terracotta: #cb5521;
+
+  --forest-ink: #1a3300;
+  --highlighter: #ffe95c;
+  --cream: #fcfaf5;
+  --pencil: #b6b6b6;
+  --whisper: #f1f1f1;
+  --teal: #a8e5e5;
+  --mint: #d5f5c2;
+  --blush: #f6d0ff;
+  --terracotta: #cb5521;
+
+  --font-display: var(--font-bricolage-grotesque), 'Bricolage Grotesque', 'Archivo Black', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-roboto-mono), 'Roboto Mono', ui-monospace, 'JetBrains Mono', monospace;
 }
 
 body {
@@ -40,6 +54,44 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display type — chunky sticker feel per design.md */
+.ny-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0.035em;
+}
+.ny-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+/* Marker highlight: rectangular wash behind the words */
+.ny-mark {
+  background: var(--highlighter);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.04em 0.18em 0.1em;
+  border-radius: 4px;
+  color: var(--forest-ink);
+}
+
+/* word-by-word reveal mask */
+.ny-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.ny-word > span {
+  display: inline-block;
+  will-change: transform;
+}
+
+.ny-noscroll-x {
+  overflow-x: clip;
 }
 
 /* Marker highlight effect for display headlines */

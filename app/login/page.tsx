@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { signInWithGoogle } from "@/lib/neon/client";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTarget = searchParams.get("redirect") || "/dashboard";
 
@@ -28,45 +25,36 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-[#fcfaf5] border-2 border-[#1a3300] rounded-[22px] p-6 sm:p-8 shadow-[6px_6px_0px_#1a3300] relative z-10">
-      {/* Back Link */}
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-[#1a3300]/70 hover:text-[#1a3300] mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-3.5 h-3.5" />
-        <span>Kembali ke Beranda</span>
-      </Link>
-
+    <div className="w-full max-w-[540px] bg-[#fcfaf5] border-2 border-[#1a3300] rounded-[26px] p-8 sm:p-11 shadow-[8px_8px_0px_#1a3300] relative z-10">
       {/* Brand Header */}
-      <div className="text-center mb-6">
-        <div className="flex justify-center mb-3">
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
           <BrandLogo iconSize="lg" href="/" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black font-bricolage text-[#1a3300] tracking-tight">
+        <h1 className="text-3xl sm:text-[34px] font-black font-bricolage text-[#1a3300] tracking-tight leading-tight">
           Masuk Akun Belajar
         </h1>
-        <p className="text-xs font-mono text-[#1a3300]/75 mt-1.5 max-w-xs mx-auto">
-          Simpan progres materi, level XP, dan pengerjaan puzzle langsung di cloud
+        <p className="text-xs sm:text-sm font-mono text-[#1a3300]/75 mt-2.5 max-w-sm mx-auto leading-relaxed">
+          Mulai perjalanan koding Java Anda dan simpan seluruh riwayat latihan serta perolehan XP.
         </p>
       </div>
 
       {/* Error Alert */}
       {authError && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-800 text-xs font-mono rounded-[10px]">
+        <div className="mb-6 p-3.5 bg-red-100 border-2 border-red-400 text-red-800 text-xs font-mono rounded-[12px]">
           {authError}
         </div>
       )}
 
       {/* Primary Action: Google OAuth via Neon */}
-      <div className="space-y-3 mb-6">
+      <div className="space-y-4">
         <button
           type="button"
           onClick={handleRealGoogleLogin}
           disabled={isLoggingInGoogle}
-          className="w-full py-3.5 px-4 bg-white hover:bg-[#fcfaf5] border-2 border-[#1a3300] rounded-[12px] text-xs sm:text-sm font-mono font-bold text-[#1a3300] flex items-center justify-center gap-3 transition-all shadow-[3px_3px_0px_#1a3300] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none disabled:opacity-60 cursor-pointer"
+          className="w-full py-4 px-6 bg-white hover:bg-[#ffe95c]/25 border-2 border-[#1a3300] rounded-[14px] text-sm sm:text-base font-mono font-extrabold text-[#1a3300] flex items-center justify-center gap-3.5 transition-all shadow-[4px_4px_0px_#1a3300] hover:shadow-[5px_5px_0px_#1a3300] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-60 cursor-pointer"
         >
-          <svg className="w-4.5 h-4.5 shrink-0" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
               d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
@@ -88,20 +76,6 @@ function LoginForm() {
             {isLoggingInGoogle ? "Menghubungkan ke Google..." : "Masuk dengan Akun Google"}
           </span>
         </button>
-
-        <div className="p-3 bg-[#d5f5c2]/40 border border-[#1a3300]/20 rounded-[10px] flex items-center justify-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-[#1a3300] shrink-0" />
-          <span className="text-[11px] font-mono text-[#1a3300]/80">
-            Autentikasi resmi terhubung ke database Neon PostgreSQL.
-          </span>
-        </div>
-      </div>
-
-      {/* Info footer */}
-      <div className="pt-5 border-t border-[#1a3300]/15 text-center">
-        <p className="text-[11px] font-mono text-[#1a3300]/65 leading-relaxed">
-          Belum punya akun? Masuk dengan Google dan akun Nyekrip Anda akan otomatis dibuat secara instan.
-        </p>
       </div>
 
     </div>
@@ -110,10 +84,18 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[90vh] flex items-center justify-center px-4 py-12 relative overflow-hidden bg-[#fcfaf5]">
-      {/* Clean subtle ambient glow (soft emerald/slate, NOT yellow) */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-[#1a3300]/5 rounded-full blur-3xl pointer-events-none" />
-      <Suspense fallback={<div className="font-mono text-xs text-[#1a3300]/60">Memuat halaman masuk...</div>}>
+    <div className="min-h-screen flex items-center justify-center px-4 py-16 sm:py-20 relative overflow-hidden bg-[#fcfaf5]">
+      {/* Decorative ambient background accents */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#ffe95c]/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-[300px] h-[300px] bg-[#d5f5c2]/20 rounded-full blur-2xl pointer-events-none" />
+
+      <Suspense
+        fallback={
+          <div className="font-mono text-sm font-bold text-[#1a3300]/60 animate-pulse">
+            Memuat halaman masuk...
+          </div>
+        }
+      >
         <LoginForm />
       </Suspense>
     </div>
