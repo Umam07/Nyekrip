@@ -273,14 +273,13 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setIsAuthOpen(true)}
-            className="px-4 py-2.5 bg-white border border-[#1a3300] rounded-[8px] text-xs sm:text-sm font-semibold text-[#1a3300] hover:bg-[#ffe95c]/30 transition-colors flex items-center gap-2 shadow-2xs"
+          <Link
+            href="/dashboard/profile"
+            className="px-4 py-2.5 bg-white border border-[#1a3300] rounded-[8px] text-xs sm:text-sm font-semibold text-[#1a3300] hover:bg-[#ffe95c]/30 transition-colors flex items-center gap-2 shadow-2xs cursor-pointer"
           >
             <User className="w-4 h-4" />
-            <span>Ganti Akun / Profil</span>
-          </button>
+            <span>Profil Belajar</span>
+          </Link>
         </div>
       </div>
 

@@ -3,15 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  ArrowLeft,
-  ShieldCheck,
-  User,
-  GraduationCap,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
-import { useProgress } from "@/lib/context/ProgressContext";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { signInWithGoogle } from "@/lib/neon/client";
 
@@ -20,9 +12,6 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTarget = searchParams.get("redirect") || "/dashboard";
 
-  const { loginUser } = useProgress();
-  const [customName, setCustomName] = useState("");
-  const [customCampus, setCustomCampus] = useState("");
   const [isLoggingInGoogle, setIsLoggingInGoogle] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -37,19 +26,6 @@ function LoginForm() {
       setIsLoggingInGoogle(false);
     }
   };
-
-  const handleCustomLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customName.trim()) return;
-
-    loginUser(
-      customName.trim(),
-      customCampus.trim() || "Teknik Informatika"
-    );
-    router.push(redirectTarget);
-  };
-
-  const initialLetter = (customName.trim()[0] || "U").toUpperCase();
 
   return (
     <div className="w-full max-w-md bg-[#fcfaf5] border-2 border-[#1a3300] rounded-[22px] p-6 sm:p-8 shadow-[6px_6px_0px_#1a3300] relative z-10">
@@ -82,8 +58,8 @@ function LoginForm() {
         </div>
       )}
 
-      {/* 1. Primary Action: Google OAuth via Neon */}
-      <div className="space-y-2 mb-5">
+      {/* Primary Action: Google OAuth via Neon */}
+      <div className="space-y-3 mb-6">
         <button
           type="button"
           onClick={handleRealGoogleLogin}
@@ -113,86 +89,19 @@ function LoginForm() {
           </span>
         </button>
 
-        <div className="p-2.5 bg-[#d5f5c2]/40 border border-[#1a3300]/20 rounded-[10px] flex items-center justify-center gap-2">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#1a3300] shrink-0" />
+        <div className="p-3 bg-[#d5f5c2]/40 border border-[#1a3300]/20 rounded-[10px] flex items-center justify-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-[#1a3300] shrink-0" />
           <span className="text-[11px] font-mono text-[#1a3300]/80">
             Autentikasi resmi terhubung ke database Neon PostgreSQL.
           </span>
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="relative my-5 text-center">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#1a3300]/20" />
-        </div>
-        <span className="relative bg-[#fcfaf5] px-3.5 text-[11px] font-mono font-bold uppercase tracking-wider text-[#1a3300]/60">
-          Atau Atur Identitas Profil
-        </span>
-      </div>
-
-      {/* 2. Custom Profile Card */}
-      <div className="p-4 bg-white border-2 border-[#1a3300]/25 rounded-[16px] shadow-2xs">
-        {/* Live Preview Card */}
-        <div className="flex items-center gap-3.5 mb-4 pb-3.5 border-b border-[#1a3300]/10">
-          <div className="w-11 h-11 rounded-full bg-[#102400] text-[#ffe95c] flex items-center justify-center font-mono font-black text-base shadow-2xs shrink-0">
-            {initialLetter}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-mono uppercase font-bold text-[#1a3300]/60">
-              Pratinjau Profil Belajar:
-            </div>
-            <div className="text-sm font-bricolage font-bold text-[#1a3300] truncate">
-              {customName.trim() || "Nama Belum Diisi"}
-            </div>
-            <div className="text-[11px] font-mono text-[#1a3300]/70 truncate">
-              {customCampus.trim() || "Teknik Informatika"} • Level 1 (0 XP)
-            </div>
-          </div>
-        </div>
-
-        <form onSubmit={handleCustomLogin} className="space-y-3">
-          <div>
-            <label className="block text-xs font-mono font-bold text-[#1a3300]/80 mb-1">
-              Nama Lengkap / Username:
-            </label>
-            <div className="relative">
-              <User className="w-4 h-4 text-[#1a3300]/40 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={customName}
-                onChange={(e) => setCustomName(e.target.value)}
-                placeholder="Contoh: Muhammad Syafi'ul Umam"
-                className="w-full pl-9 pr-3.5 py-2.5 bg-[#fcfaf5] border border-[#1a3300]/30 rounded-[10px] text-xs font-mono text-[#1a3300] placeholder:text-[#1a3300]/40 focus:outline-none focus:border-[#1a3300] focus:ring-1 focus:ring-[#1a3300]"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-mono font-bold text-[#1a3300]/80 mb-1">
-              Asal Kampus / Sekolah (Opsional):
-            </label>
-            <div className="relative">
-              <GraduationCap className="w-4 h-4 text-[#1a3300]/40 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={customCampus}
-                onChange={(e) => setCustomCampus(e.target.value)}
-                placeholder="Contoh: Universitas Indonesia / Poltek"
-                className="w-full pl-9 pr-3.5 py-2.5 bg-[#fcfaf5] border border-[#1a3300]/30 rounded-[10px] text-xs font-mono text-[#1a3300] placeholder:text-[#1a3300]/40 focus:outline-none focus:border-[#1a3300] focus:ring-1 focus:ring-[#1a3300]"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={!customName.trim()}
-            className="w-full mt-2 py-3 bg-[#102400] text-[#ffe95c] hover:bg-[#1a3300] disabled:opacity-50 font-mono text-xs font-bold rounded-[10px] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
-          >
-            <span>Simpan &amp; Lanjutkan Belajar</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
+      {/* Info footer */}
+      <div className="pt-5 border-t border-[#1a3300]/15 text-center">
+        <p className="text-[11px] font-mono text-[#1a3300]/65 leading-relaxed">
+          Belum punya akun? Masuk dengan Google dan akun Nyekrip Anda akan otomatis dibuat secara instan.
+        </p>
       </div>
 
     </div>

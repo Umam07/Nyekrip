@@ -53,7 +53,7 @@ interface ProgressContextType {
   progress: UserProgressState;
   levelInfo: LevelInfo;
   isLoggedIn: boolean;
-  loginUser: (displayName: string, campus: string) => void;
+  loginUser: (displayName: string, campus: string, customUserId?: string) => void;
   logoutUser: () => void;
   completeExercise: (
     exerciseId: string,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -17,17 +17,118 @@ import {
   ArrowRight,
   LogOut,
   Zap,
+  ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useProgress } from "@/lib/context/ProgressContext";
-import { AuthModal } from "@/components/auth/AuthModal";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+
+/**
+ * Reusable Profile Dropdown Menu for Navbar
+ */
+function ProfileDropdown({
+  displayName,
+  campus,
+  onLogout,
+}: {
+  displayName: string;
+  campus: string;
+  onLogout: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  const initialLetter = (displayName[0] || "U").toUpperCase();
+  const firstName = displayName.split(" ")[0] || "User";
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-mono font-semibold text-[#1a3300] bg-white border border-[#1a3300]/30 hover:bg-[#ffe95c]/30 rounded-[10px] transition-colors cursor-pointer shadow-2xs"
+        title="Menu Akun & Profil"
+      >
+        <div className="w-5 h-5 rounded-full bg-[#102400] text-[#ffe95c] flex items-center justify-center text-[10px] font-bold">
+          {initialLetter}
+        </div>
+        <span className="font-bold">{firstName}</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 text-[#1a3300]/70 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.96 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-full mt-2 w-56 bg-[#fcfaf5] border-2 border-[#1a3300] rounded-[14px] shadow-[4px_4px_0px_#1a3300] p-1.5 z-50 overflow-hidden"
+          >
+            <div className="px-3 py-2 border-b border-[#1a3300]/15 mb-1 bg-white/60 rounded-[8px]">
+              <div className="text-[10px] font-mono uppercase font-bold text-[#1a3300]/60">
+                Akun Belajar:
+              </div>
+              <div className="text-xs font-bricolage font-bold text-[#1a3300] truncate">
+                {displayName}
+              </div>
+              <div className="text-[10.5px] font-mono text-[#1a3300]/70 truncate">
+                {campus || "Teknik Informatika"}
+              </div>
+            </div>
+
+            <Link
+              href="/dashboard/profile"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2 text-xs font-mono font-semibold text-[#1a3300] hover:bg-[#ffe95c]/35 rounded-[8px] transition-colors"
+            >
+              <User className="w-3.5 h-3.5 text-[#1a3300]" />
+              <span>Halaman Profil</span>
+            </Link>
+
+            <div className="h-[1px] bg-[#1a3300]/15 my-1" />
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                onLogout();
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-mono font-semibold text-[#cb5521] hover:bg-[#cb5521]/10 rounded-[8px] transition-colors cursor-pointer text-left"
+            >
+              <LogOut className="w-3.5 h-3.5 text-[#cb5521]" />
+              <span>Keluar (Logout)</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function Navbar() {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   const { progress, isLoggedIn, logoutUser } = useProgress();
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
 
@@ -46,9 +147,9 @@ export function Navbar() {
     ? [
         { label: "Silabus", href: "/java", icon: Code2 },
         { label: "Dashboard", href: "/dashboard", icon: Terminal },
+        { label: "Profil", href: "/dashboard/profile", icon: User },
       ]
     : [
-        { label: "Beranda", href: "/", icon: LayoutGrid },
         { label: "Silabus", href: "/java", icon: Code2 },
       ];
 
@@ -119,43 +220,47 @@ export function Navbar() {
                   >
                     <path d="M 12 7 C 9 10, 8 16, 12 24 M 9 11 C 6 13, 7 17, 10 20 M 11 15 C 9 16, 9 19, 12 22" />
                     <path d="M 20 7 C 23 10, 24 16, 20 24 M 23 11 C 26 13, 25 17, 22 20 M 21 15 C 23 16, 23 19, 20 22" />
+                    <circle cx="16" cy="15" r="4.5" className="fill-[#ffe95c]/60 stroke-current" strokeWidth="1.2" />
                     <text
                       x="16"
-                      y="18.5"
-                      fontSize="10.5"
-                      fontWeight="800"
-                      fontFamily="monospace"
+                      y="18"
+                      fontSize="9"
+                      fontWeight="bold"
                       textAnchor="middle"
-                      fill="currentColor"
-                      stroke="none"
+                      fill="#1a3300"
+                      className="font-mono select-none"
                     >
-                      1
+                      #1
                     </text>
                   </svg>
                 </div>
-                <div className="font-mono text-[10px] sm:text-[10.5px] leading-tight text-[#1a3300]/75">
-                  <div className="font-bold text-[#1a3300]">No. 1 Platform</div>
-                  <div className="text-[#1a3300]/65">Java Interaktif</div>
+                <div className="flex flex-col text-left leading-tight">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#1a3300]/70 font-semibold">
+                    Platform Interaktif
+                  </span>
+                  <span className="text-xs font-mono font-bold tracking-tight text-[#1a3300]">
+                    Koding Java Modern
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Center: Homepage Section Links */}
+            {/* Center: Homepage Section Links (Desktop) */}
             <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
               {homeSectionLinks.map((link) => {
-                const Icon = link.icon;
                 const targetId = link.href.replace("#", "");
-                const isActive = activeSection === targetId;
+                const isSectionActive = activeSection === targetId;
+                const Icon = link.icon;
 
                 return (
                   <a
                     key={link.href}
                     href={link.href}
                     onClick={(e) => handleScrollTo(e, link.href)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs sm:text-sm font-mono font-medium transition-all ${
-                      isActive
-                        ? "bg-[#d5f5c2] text-[#1a3300] font-bold shadow-2xs scale-[1.02]"
-                        : "text-[#1a3300]/80 hover:text-[#1a3300] hover:bg-[#ffe95c]/40"
+                    className={`flex items-center gap-1.5 px-3 lg:px-3.5 py-1.5 rounded-[10px] text-xs lg:text-sm font-mono transition-all ${
+                      isSectionActive
+                        ? "bg-[#1a3300] text-[#ffe95c] font-bold shadow-2xs"
+                        : "text-[#1a3300]/80 hover:text-[#1a3300] hover:bg-[#ffe95c]/40 font-medium"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -167,36 +272,12 @@ export function Navbar() {
 
             {/* Right: Auth Action & CTA */}
             <div className="hidden sm:flex items-center gap-3 sm:gap-4">
-              {isLoggedIn ? (
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsAuthOpen(true)}
-                    className="flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-mono font-semibold text-[#1a3300] bg-white border border-[#1a3300]/30 hover:bg-[#ffe95c]/30 rounded-[10px] transition-colors cursor-pointer"
-                    title="Buka Profil"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-[#102400] text-[#ffe95c] flex items-center justify-center text-[10px] font-bold">
-                      {progress.displayName[0]?.toUpperCase() || "U"}
-                    </div>
-                    <span>{progress.displayName.split(" ")[0]}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={logoutUser}
-                    className="flex items-center gap-1 px-2.5 py-2 text-xs font-mono font-semibold text-[#cb5521] hover:bg-[#cb5521]/10 border border-[#cb5521]/30 rounded-[10px] transition-colors cursor-pointer"
-                    title="Keluar dari akun"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span className="hidden lg:inline">Keluar</span>
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-xs sm:text-sm font-mono font-bold text-[#1a3300] hover:bg-[#ffe95c]/30 rounded-[10px] transition-colors cursor-pointer"
-                >
-                  Masuk
-                </Link>
+              {isLoggedIn && (
+                <ProfileDropdown
+                  displayName={progress.displayName}
+                  campus={progress.campus}
+                  onLogout={logoutUser}
+                />
               )}
 
               <motion.div
@@ -258,51 +339,45 @@ export function Navbar() {
                       onClick={(e) => handleScrollTo(e, link.href)}
                       className="flex items-center gap-2 px-3.5 py-2.5 rounded-[10px] text-sm font-mono font-semibold text-[#1a3300] hover:bg-[#ffe95c]/30"
                     >
-                      <Icon className="w-4 h-4 text-[#1a3300]/75" />
+                      <Icon className="w-4 h-4 text-[#1a3300]" />
                       <span>{link.label}</span>
                     </a>
                   );
                 })}
-                <div className="pt-3 border-t border-[#b6b6b6]/40 flex flex-col gap-2.5">
+
+                <div className="pt-2 border-t border-[#b6b6b6]/50 flex flex-col gap-2">
                   {isLoggedIn ? (
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          setIsAuthOpen(true);
-                        }}
-                        className="flex-1 py-2.5 border border-[#1a3300] rounded-[10px] text-xs font-mono font-semibold text-[#1a3300] bg-white"
+                    <>
+                      <Link
+                        href="/dashboard/profile"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-2 px-3.5 py-2 rounded-[10px] text-sm font-mono font-bold text-[#1a3300] bg-white border border-[#1a3300]/25"
                       >
-                        Profil: {progress.displayName.split(" ")[0]}
-                      </button>
+                        <User className="w-4 h-4" />
+                        <span>Profil Belajar ({progress.displayName.split(" ")[0]})</span>
+                      </Link>
                       <button
                         type="button"
                         onClick={() => {
                           setMobileMenuOpen(false);
                           logoutUser();
                         }}
-                        className="px-3 py-2.5 border border-[#cb5521]/40 rounded-[10px] text-xs font-mono font-bold text-[#cb5521] bg-[#cb5521]/10"
+                        className="w-full flex items-center gap-2 px-3.5 py-2 text-sm font-mono font-bold text-[#cb5521] hover:bg-[#cb5521]/10 rounded-[10px] border border-[#cb5521]/30 cursor-pointer text-left"
                       >
-                        Keluar
+                        <LogOut className="w-4 h-4" />
+                        <span>Keluar Akun</span>
                       </button>
-                    </div>
+                    </>
                   ) : (
                     <Link
-                      href="/login"
+                      href="/login?redirect=/java"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="w-full py-2.5 border border-[#1a3300] rounded-[10px] text-xs font-mono font-semibold text-[#1a3300] bg-white text-center"
+                      className="flex items-center justify-center gap-2 py-2.5 bg-[#102400] text-[#ffe95c] font-mono text-sm font-bold rounded-[10px]"
                     >
-                      Masuk ke Akun
+                      <Terminal className="w-4 h-4" />
+                      <span>Mulai Belajar Sekarang</span>
                     </Link>
                   )}
-                  <Link
-                    href={isLoggedIn ? "/dashboard" : "/login?redirect=/java"}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full py-2.5 bg-[#102400] text-[#ffe95c] rounded-[10px] text-xs font-mono font-bold text-center"
-                  >
-                    → {isLoggedIn ? "Buka Dashboard Belajar" : "Masuk & Mulai Belajar"}
-                  </Link>
                 </div>
               </motion.div>
             )}
@@ -310,17 +385,14 @@ export function Navbar() {
         </header>
       ) : (
         /* ========================================================================= */
-        /* 2. MENU / INTERNAL NAVBAR: FIXED BAR                                       */
+        /* 2. INTERNAL NAVBAR (Materi, Course, Latihan, Dashboard)                   */
         /* ========================================================================= */
-        <>
-          <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[#fcfaf5]/95 backdrop-blur-md border-b-2 border-[#1a3300]/15 shadow-2xs transition-all">
-            <div className="max-w-[1440px] mx-auto px-4 sm:px-7 py-2.5 sm:py-3 flex items-center justify-between">
-              {/* Left: Brand Logo (directs to /dashboard if logged in) */}
-              <div className="flex items-center gap-3.5 sm:gap-4">
-                <BrandLogo iconSize="md" href={isLoggedIn ? "/dashboard" : "/"} />
-
-                {/* Subtle Divider & Badge */}
-                <div className="h-6 w-[1px] bg-[#1a3300]/20 hidden sm:block" />
+        <header className="sticky top-0 z-40 w-full border-b border-[#1a3300]/20 bg-[#fcfaf5]/90 backdrop-blur-md">
+          <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
+            <div className="flex items-center justify-between h-14 sm:h-16">
+              {/* Left: Brand Logo */}
+              <div className="flex items-center gap-3">
+                <BrandLogo iconSize="sm" href={isLoggedIn ? "/dashboard" : "/"} />
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#d5f5c2]/60 border border-[#1a3300]/20 rounded-[6px] text-[11px] font-mono font-bold text-[#1a3300]">
                   <Zap className="w-3 h-3 text-[#1a3300]" />
                   <span>Mode Belajar</span>
@@ -331,7 +403,11 @@ export function Navbar() {
               <nav className="hidden md:flex items-center gap-2 lg:gap-3">
                 {appNavLinks.map((link) => {
                   const Icon = link.icon;
-                  const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                  // Strict active check: Dashboard is active only on /dashboard, NOT on /dashboard/profile
+                  const isActive =
+                    link.href === "/dashboard"
+                      ? pathname === "/dashboard"
+                      : pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
 
                   return (
                     <Link
@@ -350,57 +426,43 @@ export function Navbar() {
                 })}
               </nav>
 
-              {/* Right: XP Status & Profile / Logout Action */}
+              {/* Right: Profile Dropdown (no standalone logout, no XP chip) */}
               <div className="hidden sm:flex items-center gap-3">
-                {/* XP Chip */}
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#1a3300]/25 rounded-[8px] text-xs font-mono shadow-2xs">
-                  <span className="text-amber-500 font-bold">⚡</span>
-                  <span className="font-extrabold text-[#1a3300]">{progress.totalXp} XP</span>
-                </div>
-
                 {isLoggedIn ? (
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsAuthOpen(true)}
-                      className="flex items-center gap-2 px-3.5 py-1.5 bg-white hover:bg-[#ffe95c]/25 border border-[#1a3300]/30 rounded-[10px] text-xs font-mono font-bold text-[#1a3300] transition-colors shadow-2xs cursor-pointer"
-                      title="Lihat / Edit Profil"
-                    >
-                      <div className="w-5 h-5 rounded-full bg-[#102400] text-[#ffe95c] flex items-center justify-center text-[10px] font-bold">
-                        {progress.displayName[0]?.toUpperCase() || "U"}
-                      </div>
-                      <span>{progress.displayName.split(" ")[0]}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={logoutUser}
-                      className="flex items-center gap-1 px-3 py-1.5 text-xs font-mono font-semibold text-[#cb5521] hover:bg-[#cb5521]/10 border border-[#cb5521]/30 rounded-[8px] transition-colors cursor-pointer"
-                      title="Keluar dari akun dan kembali ke Beranda"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>Keluar</span>
-                    </button>
-                  </div>
+                  <ProfileDropdown
+                    displayName={progress.displayName}
+                    campus={progress.campus}
+                    onLogout={logoutUser}
+                  />
                 ) : (
                   <Link
-                    href="/login"
-                    className="px-4 py-1.5 text-xs font-mono font-bold text-[#1a3300] bg-[#ffe95c] hover:bg-[#ffe95c]/80 border border-[#1a3300]/30 rounded-[8px] transition-colors shadow-2xs cursor-pointer"
+                    href="/login?redirect=/java"
+                    className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-mono font-bold text-[#102400] bg-[#ffe95c] hover:bg-[#ffe95c]/80 border border-[#1a3300]/30 rounded-[8px] transition-colors shadow-2xs cursor-pointer"
                   >
-                    Masuk
+                    <Terminal className="w-3.5 h-3.5" />
+                    <span>Mulai Belajar</span>
                   </Link>
                 )}
               </div>
 
               {/* Mobile Menu Toggle for Internal */}
               <div className="flex sm:hidden items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAuthOpen(true)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-[#1a3300]/30 rounded-[8px] text-[11px] font-mono font-bold text-[#1a3300]"
-                >
-                  <User className="w-3.5 h-3.5" />
-                  <span>{isLoggedIn ? progress.displayName.split(" ")[0] : "Masuk"}</span>
-                </button>
+                {isLoggedIn ? (
+                  <Link
+                    href="/dashboard/profile"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-[#1a3300]/30 rounded-[8px] text-[11px] font-mono font-bold text-[#1a3300]"
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>{progress.displayName.split(" ")[0]}</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href="/login?redirect=/java"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#ffe95c] border border-[#1a3300]/30 rounded-[8px] text-[11px] font-mono font-bold text-[#1a3300]"
+                  >
+                    <span>Mulai Belajar</span>
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -426,7 +488,10 @@ export function Navbar() {
                 >
                   {appNavLinks.map((link) => {
                     const Icon = link.icon;
-                    const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                    const isActive =
+                      link.href === "/dashboard"
+                        ? pathname === "/dashboard"
+                        : pathname === link.href || (link.href !== "/" && pathname.startsWith(`${link.href}/`));
 
                     return (
                       <Link
@@ -444,35 +509,35 @@ export function Navbar() {
                       </Link>
                     );
                   })}
-                  <div className="pt-2 border-t border-[#1a3300]/15 flex items-center justify-between text-xs font-mono">
-                    <span className="text-[#1a3300]/70">Total Perolehan:</span>
-                    <span className="font-bold text-[#1a3300]">{progress.totalXp} XP</span>
-                  </div>
                   {isLoggedIn && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        logoutUser();
-                      }}
-                      className="w-full mt-1 py-2 flex items-center justify-center gap-1.5 text-xs font-mono font-bold text-[#cb5521] border border-[#cb5521]/30 rounded-[8px] bg-[#cb5521]/10"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>Keluar dari Akun</span>
-                    </button>
+                    <div className="pt-2 border-t border-[#1a3300]/15 flex flex-col gap-2">
+                      <Link
+                        href="/dashboard/profile"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 text-xs font-mono font-bold text-[#1a3300] bg-white border border-[#1a3300]/25 rounded-[8px]"
+                      >
+                        <User className="w-4 h-4" />
+                        <span>Halaman Profil</span>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          logoutUser();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono font-bold text-[#cb5521] hover:bg-[#cb5521]/10 rounded-[8px] border border-[#cb5521]/30 cursor-pointer text-left"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Keluar Akun</span>
+                      </button>
+                    </div>
                   )}
                 </motion.div>
               )}
             </AnimatePresence>
-          </header>
-
-          {/* Spacer Div */}
-          <div className="h-14 sm:h-16 w-full shrink-0" aria-hidden="true" />
-        </>
+          </div>
+        </header>
       )}
-
-      {/* Auth & Profile Modal */}
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </>
   );
 }

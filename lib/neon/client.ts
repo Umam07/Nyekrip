@@ -34,7 +34,9 @@ export const neonAuthConfig = {
 export async function signInWithGoogle(callbackUrl?: string): Promise<{ success: boolean; error?: string }> {
   try {
     const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-    const targetCallback = callbackUrl || `${origin}/dashboard`;
+    const target = callbackUrl || `${origin}/dashboard`;
+    const targetPath = target.startsWith("http") ? new URL(target).pathname : target;
+    const authCallbackUrl = `${origin}/auth/callback?redirect=${encodeURIComponent(targetPath)}`;
 
     const res = await fetch(`${neonAuthConfig.baseUrl}/sign-in/social`, {
       method: "POST",
@@ -43,8 +45,8 @@ export async function signInWithGoogle(callbackUrl?: string): Promise<{ success:
       },
       body: JSON.stringify({
         provider: "google",
-        callbackURL: targetCallback,
-        newUserCallbackURL: targetCallback,
+        callbackURL: authCallbackUrl,
+        newUserCallbackURL: authCallbackUrl,
       }),
     });
 
